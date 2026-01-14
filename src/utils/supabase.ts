@@ -1,8 +1,30 @@
-import { createClient } from '@supabase/supabase-js'
-import { loadConfig } from './config'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
+import { getConfig } from './config'
+import type { Database } from './types'
 
-const config = await loadConfig()
+let supabaseInstance: SupabaseClient<Database> | null = null
 
-const supabase = createClient(config.supabaseUrl, config.supabaseAnonKey)
+/**
+ * Get or create the Supabase client instance
+ * Lazy initialization ensures config is loaded before client creation
+ */
+function getSupabaseClient(): SupabaseClient<Database> {
+	if (!supabaseInstance) {
+		const config = getConfig()
+		supabaseInstance = createClient<Database>(
+			config.supabaseUrl,
+			config.supabasePublishableDefaultKey
+		)
+	}
+	return supabaseInstance
+}
 
-export default supabase
+// Export as a getter to ensure lazy initialization
+export const supabase = new Proxy({} as SupabaseClient<Database>, {
+	get: (_target, prop) => {
+		const client = getSupabaseClient()
+		return (client as SupabaseClient<Database>)[
+			prop as keyof SupabaseClient<Database>
+		]
+	},
+})

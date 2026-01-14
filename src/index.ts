@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export default {
-	async fetch(request: Request, env: any) {
+	async fetch(request: Request, env: Env) {
 		const url = new URL(request.url)
 
 		if (url.pathname === '/api/config') {
