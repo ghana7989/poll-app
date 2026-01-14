@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
+import { loadConfig } from './config'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY
+const config = await loadConfig()
 
-const supabase = createClient(supabaseUrl, supabaseKey)
+const supabase = createClient(config.supabaseUrl, config.supabaseAnonKey)
 
 export default supabase
