@@ -2,18 +2,18 @@
 
 /**
  * Simulate Live Votes Script
- * 
+ *
  * This script simulates multiple users voting on a poll in real-time.
  * Useful for testing the live updates and visualization features.
- * 
+ *
  * Usage:
  *   npm run simulate-votes <poll-id> [options]
- * 
+ *
  * Options:
  *   --count <number>     Number of votes to simulate (default: 10)
  *   --interval <ms>      Time between votes in milliseconds (default: 1000)
  *   --random-delay       Add random delay variation (0-2x interval)
- * 
+ *
  * Example:
  *   npm run simulate-votes abc123 --count 20 --interval 500 --random-delay
  */
@@ -29,7 +29,9 @@ const SUPABASE_URL = process.env.SUPABASE_URL
 const SUPABASE_KEY = process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-	console.error('❌ Error: SUPABASE_URL and SUPABASE_PUBLISHABLE_DEFAULT_KEY must be set in .dev.vars')
+	console.error(
+		'❌ Error: SUPABASE_URL and SUPABASE_PUBLISHABLE_DEFAULT_KEY must be set in .dev.vars'
+	)
 	process.exit(1)
 }
 
@@ -51,7 +53,11 @@ interface Poll {
  * Generate a random fingerprint for simulation
  */
 function generateRandomFingerprint(): string {
-	return `sim-${Math.random().toString(36).substring(2, 15)}-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`
+	return `sim-${Math.random()
+		.toString(36)
+		.substring(2, 15)}-${Date.now()}-${Math.random()
+		.toString(36)
+		.substring(2, 8)}`
 }
 
 /**
@@ -60,8 +66,11 @@ function generateRandomFingerprint(): string {
  */
 async function getPoll(pollIdentifier: string): Promise<Poll | null> {
 	// Try to determine if it's a UUID or slug
-	const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pollIdentifier)
-	
+	const isUUID =
+		/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+			pollIdentifier
+		)
+
 	const { data: poll, error } = await supabase
 		.from('polls')
 		.select('id, title, type, options:poll_options(id, label)')
@@ -83,7 +92,7 @@ async function getPoll(pollIdentifier: string): Promise<Poll | null> {
 async function castVote(pollId: string, optionIds: string[]): Promise<boolean> {
 	const fingerprint = generateRandomFingerprint()
 
-	const votes = optionIds.map(optionId => ({
+	const votes = optionIds.map((optionId) => ({
 		poll_id: pollId,
 		option_id: optionId,
 		voter_id: null, // Simulated votes are anonymous
@@ -104,12 +113,13 @@ async function castVote(pollId: string, optionIds: string[]): Promise<boolean> {
  * Select random option(s) from poll
  */
 function selectRandomOptions(poll: Poll): string[] {
-	const numOptions = poll.type === 'multiple'
-		? Math.floor(Math.random() * poll.options.length) + 1 // 1 to all options
-		: 1 // Single option
+	const numOptions =
+		poll.type === 'multiple'
+			? Math.floor(Math.random() * poll.options.length) + 1 // 1 to all options
+			: 1 // Single option
 
 	const shuffled = [...poll.options].sort(() => Math.random() - 0.5)
-	return shuffled.slice(0, numOptions).map(opt => opt.id)
+	return shuffled.slice(0, numOptions).map((opt) => opt.id)
 }
 
 /**
@@ -124,7 +134,9 @@ async function simulateVotes(
 	console.log('🗳️  Poll Vote Simulator\n')
 	console.log(`Poll: ${pollIdentifier}`)
 	console.log(`Votes to simulate: ${count}`)
-	console.log(`Interval: ${interval}ms${randomDelay ? ' (with random delay)' : ''}`)
+	console.log(
+		`Interval: ${interval}ms${randomDelay ? ' (with random delay)' : ''}`
+	)
 	console.log('')
 
 	// Fetch poll details
@@ -137,8 +149,10 @@ async function simulateVotes(
 	}
 
 	console.log(`✅ Poll found: "${poll.title}"`)
-	console.log(`   Options: ${poll.options.map(o => o.label).join(', ')}`)
-	console.log(`   Multiple votes allowed: ${poll.type === 'multiple' ? 'Yes' : 'No'}`)
+	console.log(`   Options: ${poll.options.map((o) => o.label).join(', ')}`)
+	console.log(
+		`   Multiple votes allowed: ${poll.type === 'multiple' ? 'Yes' : 'No'}`
+	)
 	console.log('')
 
 	// Simulate votes
@@ -150,7 +164,7 @@ async function simulateVotes(
 	for (let i = 0; i < count; i++) {
 		const selectedOptions = selectRandomOptions(poll)
 		const optionLabels = selectedOptions
-			.map(id => poll.options.find(o => o.id === id)?.label)
+			.map((id) => poll.options.find((o) => o.id === id)?.label)
 			.join(', ')
 
 		process.stdout.write(`Vote ${i + 1}/${count}: ${optionLabels}... `)
@@ -167,10 +181,8 @@ async function simulateVotes(
 
 		// Wait before next vote (except for last one)
 		if (i < count - 1) {
-			const delay = randomDelay 
-				? Math.random() * interval * 2 
-				: interval
-			await new Promise(resolve => setTimeout(resolve, delay))
+			const delay = randomDelay ? Math.random() * interval * 2 : interval
+			await new Promise((resolve) => setTimeout(resolve, delay))
 		}
 	}
 
@@ -207,7 +219,8 @@ const intervalIndex = args.indexOf('--interval')
 const randomDelay = args.includes('--random-delay')
 
 const count = countIndex !== -1 ? parseInt(args[countIndex + 1], 10) : 10
-const interval = intervalIndex !== -1 ? parseInt(args[intervalIndex + 1], 10) : 1000
+const interval =
+	intervalIndex !== -1 ? parseInt(args[intervalIndex + 1], 10) : 1000
 
 if (!pollIdentifier) {
 	console.error('❌ Error: Poll slug or ID is required')
@@ -225,7 +238,7 @@ if (isNaN(interval) || interval < 0) {
 }
 
 // Run simulation
-simulateVotes(pollIdentifier, count, interval, randomDelay).catch(error => {
+simulateVotes(pollIdentifier, count, interval, randomDelay).catch((error) => {
 	console.error('❌ Simulation error:', error)
 	process.exit(1)
 })

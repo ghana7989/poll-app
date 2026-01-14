@@ -64,7 +64,17 @@ export function usePollResults(pollId: string | undefined) {
 						)
 					}
 				)
-				.subscribe()
+				.subscribe((status, err) => {
+					if (status === 'SUBSCRIBED') {
+						console.log(`[Realtime] Connected to poll-${pollId}`)
+					} else if (status === 'CHANNEL_ERROR') {
+						console.error(`[Realtime] Channel error for poll-${pollId}:`, err)
+					} else if (status === 'TIMED_OUT') {
+						console.warn(`[Realtime] Connection timed out for poll-${pollId}`)
+					} else if (status === 'CLOSED') {
+						console.log(`[Realtime] Channel closed for poll-${pollId}`)
+					}
+				})
 		}
 
 		setupRealtimeSubscription()

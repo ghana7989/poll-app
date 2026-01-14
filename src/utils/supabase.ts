@@ -13,7 +13,15 @@ function getSupabaseClient(): SupabaseClient<Database> {
 		const config = getConfig()
 		supabaseInstance = createClient<Database>(
 			config.supabaseUrl,
-			config.supabasePublishableDefaultKey
+			config.supabasePublishableDefaultKey,
+			{
+				realtime: {
+					// Explicitly use browser WebSocket for Cloudflare Pages compatibility
+					transport: WebSocket,
+					// Increase timeout for better connection reliability
+					timeout: 30000,
+				},
+			}
 		)
 	}
 	return supabaseInstance
