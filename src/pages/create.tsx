@@ -1,10 +1,26 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Plus, X, GripVertical } from 'lucide-react'
 import { useCreatePoll } from '@/hooks/use-create-poll'
-import { createPollSchema, type CreatePollInput } from '@/utils/validators'
+import { type CreatePollInput } from '@/utils/validators'
 import { POLL_LIMITS, POLL_VISIBILITY, POLL_TYPE } from '@/utils/constants'
+
+// Form schema without options (options are managed separately via useState)
+const createPollFormSchema = z.object({
+	title: z.string().min(1, 'Title is required').max(200),
+	description: z.string().max(1000).optional(),
+	type: z.enum([POLL_TYPE.SINGLE, POLL_TYPE.MULTIPLE]),
+	visibility: z.enum([POLL_VISIBILITY.PUBLIC, POLL_VISIBILITY.UNLISTED, POLL_VISIBILITY.PRIVATE]),
+	maxSelections: z.number().min(1).optional(),
+	showResultsBeforeVote: z.boolean(),
+	requireAuthToVote: z.boolean(),
+	allowEmbed: z.boolean(),
+	closesAt: z.date().optional(),
+})
+
+type CreatePollFormData = z.infer<typeof createPollFormSchema>
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -33,8 +49,8 @@ export function CreatePage() {
 		watch,
 		setValue,
 		formState: { errors },
-	} = useForm({
-		resolver: zodResolver(createPollSchema),
+	} = useForm<CreatePollFormData>({
+		resolver: zodResolver(createPollFormSchema),
 		defaultValues: {
 			type: POLL_TYPE.SINGLE,
 			visibility: POLL_VISIBILITY.PUBLIC,
@@ -64,7 +80,7 @@ export function CreatePage() {
 		setOptions(newOptions)
 	}
 
-	const onSubmit = async (data: CreatePollInput) => {
+	const onSubmit = async (data: CreatePollFormData) => {
 		try {
 			const validOptions = options.filter((opt) => opt.trim())
 			if (validOptions.length < POLL_LIMITS.MIN_OPTIONS) {
@@ -75,7 +91,7 @@ export function CreatePage() {
 			await createPoll.mutateAsync({
 				...data,
 				options: validOptions.map((label) => ({ label })),
-			})
+			} as CreatePollInput)
 			toast.success('Poll created successfully!')
 		} catch (error) {
 			toast.error('Failed to create poll')
