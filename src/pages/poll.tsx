@@ -127,8 +127,8 @@ export function PollPage() {
 				title={poll.title}
 				description={poll.description}
 				creator={poll.creator}
-				createdAt={poll.created_at}
-				status={poll.status}
+createdAt={poll.created_at ?? new Date().toISOString()}
+		status={poll.status}
 				visibility={poll.visibility}
 				pollType={poll.type}
 				onShare={() => setShowShareModal(true)}
@@ -222,8 +222,8 @@ export function PollPage() {
 								closesAt={poll.closes_at}
 								status={poll.status}
 								pollType={poll.type}
-								createdAt={poll.created_at}
-								isPulsing={isPulsing}
+createdAt={poll.created_at ?? new Date().toISOString()}
+							isPulsing={isPulsing}
 							/>
 						</div>
 

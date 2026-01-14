@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Activity, TrendingUp } from 'lucide-react'
+import { Activity } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { formatDistanceToNow } from 'date-fns'
 
 interface VoteEvent {
 	id: string
@@ -17,7 +16,7 @@ interface VoteTimelineProps {
 	pollId: string
 }
 
-export function VoteTimeline({ results, options, pollId }: VoteTimelineProps) {
+export function VoteTimeline({ results, options, pollId: _pollId }: VoteTimelineProps) {
 	const [voteEvents, setVoteEvents] = useState<VoteEvent[]>([])
 	const [previousResults, setPreviousResults] =
 		useState<Record<string, number>>(results)
