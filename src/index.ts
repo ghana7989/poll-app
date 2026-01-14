@@ -7,6 +7,8 @@ export default {
 			return Response.json({
 				supabaseUrl: env.SUPABASE_URL,
 				supabasePublishableDefaultKey: env.SUPABASE_PUBLISHABLE_DEFAULT_KEY,
+				appUrl: env.APP_URL,
+				appName: env.APP_NAME,
 			})
 		}
 
