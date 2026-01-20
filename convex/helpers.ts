@@ -1,5 +1,4 @@
-import { QueryCtx, MutationCtx } from "./_generated/server";
-import { v } from "convex/values";
+import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { auth } from "./auth";
 import type { Id } from "./_generated/dataModel";
 

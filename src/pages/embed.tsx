@@ -58,7 +58,7 @@ export function EmbedPage() {
 		try {
 			await vote.mutateAsync({
 				pollId: poll._id,
-				optionIds: selectedOptions,
+				optionIds: selectedOptions as any,
 			})
 			setSelectedOptions([])
 		} catch (error) {

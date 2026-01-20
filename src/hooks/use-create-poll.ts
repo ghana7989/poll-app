@@ -56,5 +56,6 @@ export function useCreatePoll() {
 
 			navigate(`/poll/${result.slug}`)
 		},
+		isPending: false,
 	}
 }

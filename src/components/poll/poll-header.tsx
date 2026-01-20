@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatDistanceToNow } from 'date-fns'
 import { useComments } from '@/hooks/use-comments'
+import type { Id } from '../../../convex/_generated/dataModel'
 
 interface PollHeaderProps {
 	title: string
@@ -36,7 +37,7 @@ export function PollHeader({
 	allowComments,
 	onShare,
 }: PollHeaderProps) {
-	const { data: comments } = useComments(pollId)
+	const { data: comments } = useComments(pollId as Id<'polls'>)
 	const commentCount = comments?.length || 0
 
 	const getInitials = (name: string | null) => {

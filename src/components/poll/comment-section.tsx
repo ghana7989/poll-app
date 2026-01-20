@@ -11,9 +11,11 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
 
+import type { Id } from '../../../convex/_generated/dataModel'
+
 interface CommentSectionProps {
 	pollId: string
-	pollCreatorId: string | null
+	pollCreatorId: Id<'users'> | undefined
 	allowComments: boolean
 }
 
@@ -22,7 +24,7 @@ export function CommentSection({
 	pollCreatorId,
 	allowComments,
 }: CommentSectionProps) {
-	const { data: comments, isLoading } = useComments(pollId)
+	const { data: comments, isLoading } = useComments(pollId as Id<'polls'>)
 	const addComment = useAddComment()
 	const deleteComment = useDeleteComment()
 	const { user } = useAuth()
@@ -50,7 +52,7 @@ export function CommentSection({
 		}
 
 		try {
-			await addComment.mutateAsync({ pollId, content: content.trim() })
+			await addComment.mutateAsync({ pollId: pollId as Id<'polls'>, content: content.trim() })
 			setContent('')
 			toast.success('Comment added!')
 		} catch (error: any) {
@@ -69,7 +71,7 @@ export function CommentSection({
 		if (!confirm('Delete this comment?')) return
 
 		try {
-			await deleteComment.mutateAsync({ commentId })
+			await deleteComment.mutateAsync({ commentId: commentId as Id<'comments'> })
 			toast.success('Comment deleted')
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to delete comment')

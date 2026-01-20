@@ -61,6 +61,7 @@ export function useVote() {
 			votedPolls[pollId] = true
 			localStorage.setItem(LOCAL_STORAGE_KEYS.VOTED_POLLS, JSON.stringify(votedPolls))
 		},
+		isPending: false,
 	}
 }
 
