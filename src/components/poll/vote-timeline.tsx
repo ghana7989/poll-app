@@ -12,7 +12,7 @@ interface VoteEvent {
 
 interface VoteTimelineProps {
 	results: Record<string, number>
-	options: Array<{ id: string; label: string }>
+	options: Array<{ _id: string; label: string }>
 	pollId: string
 }
 
@@ -36,7 +36,7 @@ export function VoteTimeline({ results, options, pollId: _pollId }: VoteTimeline
 			const previousVotes = previousResults[optionId] || 0
 
 			if (currentVotes > previousVotes) {
-				const option = options.find((opt) => opt.id === optionId)
+				const option = options.find((opt) => opt._id === optionId)
 				if (option) {
 					const newVoteCount = currentVotes - previousVotes
 

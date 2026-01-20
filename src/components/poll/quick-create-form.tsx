@@ -54,6 +54,7 @@ export function QuickCreateForm() {
 				showResultsBeforeVote: true,
 				requireAuthToVote: false,
 				allowEmbed: true,
+				allowComments: true,
 				options: validOptions.map((label) => ({ label })),
 			})
 

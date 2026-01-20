@@ -127,7 +127,7 @@ export function ShareModal({ poll, isOpen, onClose }: ShareModalProps) {
 					</div>
 
 					{/* Embed Section */}
-					{poll.allow_embed && (
+					{poll.allowEmbed && (
 						<>
 							<OrDivider />
 							<div className='space-y-3'>

@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { Plus, BarChart3, Users, TrendingUp, Eye, Share2, Trash2 } from 'lucide-react'
 import { usePolls } from '@/hooks/use-polls'
-import { supabase } from '@/utils/supabase'
+import { useMutation } from 'convex/react'
+import { api } from '../../convex/_generated/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -28,13 +29,13 @@ import { Spinner } from '@/components/ui/spinner'
 import { ShareModal } from '@/components/poll/share-modal'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
-import { useQueryClient } from '@tanstack/react-query'
+import type { Id } from '../../convex/_generated/dataModel'
 
 export function DashboardPage() {
 	const { data: polls, isLoading } = usePolls()
-	const [pollToDelete, setPollToDelete] = useState<string | null>(null)
+	const [pollToDelete, setPollToDelete] = useState<Id<'polls'> | null>(null)
 	const [pollToShare, setPollToShare] = useState<any>(null)
-	const queryClient = useQueryClient()
+	const deletePoll = useMutation(api.polls.update)
 
 	const totalPolls = polls?.length || 0
 	const totalVotes = polls?.reduce((sum, poll) => sum + poll.voteCount, 0) || 0
@@ -44,15 +45,16 @@ export function DashboardPage() {
 		if (!pollToDelete) return
 
 		try {
-			const { error } = await supabase.from('polls').delete().eq('id', pollToDelete)
+			// Close the poll instead of deleting (soft delete)
+			await deletePoll({
+				pollId: pollToDelete,
+				status: 'closed' as const,
+			})
 
-			if (error) throw error
-
-			toast.success('Poll deleted successfully')
-			queryClient.invalidateQueries({ queryKey: ['polls'] })
+			toast.success('Poll closed successfully')
 			setPollToDelete(null)
 		} catch (error) {
-			toast.error('Failed to delete poll')
+			toast.error('Failed to close poll')
 		}
 	}
 
@@ -65,7 +67,7 @@ export function DashboardPage() {
 	}
 
 	return (
-		<div className="container mx-auto py-10">
+		<div className="container mx-auto px-4 py-10">
 			<div className="mb-8 flex items-center justify-between">
 				<div>
 					<h1 className="text-3xl font-bold">Dashboard</h1>
@@ -129,7 +131,7 @@ export function DashboardPage() {
 							</TableHeader>
 							<TableBody>
 								{polls.map((poll) => (
-									<TableRow key={poll.id}>
+									<TableRow key={poll._id}>
 										<TableCell className="font-medium">{poll.title}</TableCell>
 										<TableCell>
 											<Badge
@@ -140,8 +142,8 @@ export function DashboardPage() {
 										</TableCell>
 										<TableCell className="text-right">{poll.voteCount}</TableCell>
 										<TableCell className="text-right">
-											{poll.created_at
-												? format(new Date(poll.created_at), 'MMM d, yyyy')
+											{poll._creationTime
+												? format(new Date(poll._creationTime), 'MMM d, yyyy')
 												: '-'}
 										</TableCell>
 										<TableCell className="text-right">
@@ -161,7 +163,7 @@ export function DashboardPage() {
 												<Button
 													variant="ghost"
 													size="icon"
-													onClick={() => setPollToDelete(poll.id)}
+													onClick={() => setPollToDelete(poll._id)}
 												>
 													<Trash2 className="h-4 w-4 text-destructive" />
 												</Button>
@@ -195,15 +197,14 @@ export function DashboardPage() {
 			<AlertDialog open={!!pollToDelete} onOpenChange={() => setPollToDelete(null)}>
 				<AlertDialogContent className="glass-strong">
 					<AlertDialogHeader>
-						<AlertDialogTitle>Delete Poll?</AlertDialogTitle>
+						<AlertDialogTitle>Close Poll?</AlertDialogTitle>
 						<AlertDialogDescription>
-							This action cannot be undone. This will permanently delete the poll and all
-							its votes.
+							This will close the poll and prevent further votes. You can reopen it later.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
 						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+						<AlertDialogAction onClick={handleDelete}>Close Poll</AlertDialogAction>
 					</AlertDialogFooter>
 				</AlertDialogContent>
 			</AlertDialog>

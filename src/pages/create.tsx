@@ -17,6 +17,7 @@ const createPollFormSchema = z.object({
 	showResultsBeforeVote: z.boolean(),
 	requireAuthToVote: z.boolean(),
 	allowEmbed: z.boolean(),
+	allowComments: z.boolean(),
 	closesAt: z.date().optional(),
 })
 
@@ -57,6 +58,7 @@ export function CreatePage() {
 			showResultsBeforeVote: true,
 			requireAuthToVote: false,
 			allowEmbed: true,
+			allowComments: true,
 		},
 	})
 
@@ -99,7 +101,7 @@ export function CreatePage() {
 	}
 
 	return (
-		<div className="container mx-auto max-w-3xl py-10">
+		<div className="container mx-auto max-w-3xl px-4 py-10">
 			<Card className="glass-strong">
 				<CardHeader>
 					<CardTitle>Create a Poll</CardTitle>
@@ -275,6 +277,14 @@ export function CreatePage() {
 											id="allowEmbed"
 											defaultChecked
 											onCheckedChange={(checked) => setValue('allowEmbed', checked)}
+										/>
+									</div>
+									<div className="flex items-center justify-between">
+										<Label htmlFor="allowComments">Allow comments</Label>
+										<Switch
+											id="allowComments"
+											defaultChecked
+											onCheckedChange={(checked) => setValue('allowComments', checked)}
 										/>
 									</div>
 								</div>

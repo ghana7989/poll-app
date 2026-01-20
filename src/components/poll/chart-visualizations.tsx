@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/chart'
 
 interface PollOption {
-	id: string
+	_id: string
 	label: string
 	position: number
 }
@@ -40,7 +40,7 @@ export function ChartVisualizations({
 		]
 
 		const data = options.map((option, index) => {
-			const votes = results[option.id] || 0
+			const votes = results[option._id] || 0
 			const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0
 			return {
 				name: option.label,

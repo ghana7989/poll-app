@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ConvexProvider } from './providers/ConvexProvider'
 import { loadConfig } from './utils/config'
 import './index.css'
 import App from './App.tsx'
@@ -24,8 +25,10 @@ const queryClient = new QueryClient({
 // Now render - config available synchronously everywhere
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<QueryClientProvider client={queryClient}>
-			<App />
-		</QueryClientProvider>
+		<ConvexProvider>
+			<QueryClientProvider client={queryClient}>
+				<App />
+			</QueryClientProvider>
+		</ConvexProvider>
 	</StrictMode>
 )

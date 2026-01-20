@@ -52,6 +52,7 @@ export const createPollSchema = z.object({
 	showResultsBeforeVote: z.boolean().default(true),
 	requireAuthToVote: z.boolean().default(false),
 	allowEmbed: z.boolean().default(true),
+	allowComments: z.boolean().default(true),
 	closesAt: z.date().optional(),
 })
 

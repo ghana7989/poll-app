@@ -191,8 +191,8 @@ export function AppLayout({ children }: AppLayoutProps) {
 						<div className="flex items-center gap-4 text-xs">
 							<span className="flex items-center gap-1">
 								Powered by
-								<a href="https://supabase.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors font-medium">
-									Supabase
+								<a href="https://convex.dev" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors font-medium">
+									Convex
 								</a>
 								&
 								<a href="https://www.cloudflare.com" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors font-medium">

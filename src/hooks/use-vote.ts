@@ -1,22 +1,21 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase } from '@/utils/supabase'
+import { useMutation } from 'convex/react'
+import { api } from '../../convex/_generated/api'
 import { getHashedFingerprint } from '@/utils/fingerprint'
-import { useAuth } from './use-auth'
 import { LOCAL_STORAGE_KEYS } from '@/utils/constants'
+import type { Id } from '../../convex/_generated/dataModel'
 
 interface VoteInput {
-	pollId: string
-	optionIds: string[]
+	pollId: Id<'polls'>
+	optionIds: Id<'poll_options'>[]
 }
 
 export function useVote() {
-	const { user } = useAuth()
-	const queryClient = useQueryClient()
+	const castVote = useMutation(api.votes.cast)
 
-	return useMutation({
-		mutationFn: async ({ pollId, optionIds }: VoteInput) => {
+	return {
+		mutateAsync: async ({ pollId, optionIds }: VoteInput) => {
 			// Get fingerprint
-			const fingerprint = await getHashedFingerprint()
+			const voterFingerprint = await getHashedFingerprint()
 
 			// Check if already voted (local storage)
 			const votedPolls = JSON.parse(
@@ -26,24 +25,12 @@ export function useVote() {
 				throw new Error('You have already voted on this poll')
 			}
 
-			// Insert votes
-			const votes = optionIds.map((optionId) => ({
-				poll_id: pollId,
-				option_id: optionId,
-				voter_id: user?.id || null,
-				voter_fingerprint: fingerprint,
-			}))
-
-			const { error } = await supabase.from('votes').insert(votes)
-
-			if (error) {
-				// Check if it's a duplicate vote error
-				if (error.code === '23505') {
-					// Unique violation
-					throw new Error('You have already voted on this poll')
-				}
-				throw error
-			}
+			// Cast vote via Convex
+			await castVote({
+				pollId,
+				optionIds,
+				voterFingerprint,
+			})
 
 			// Mark as voted in local storage
 			votedPolls[pollId] = true
@@ -51,11 +38,30 @@ export function useVote() {
 
 			return { pollId, optionIds }
 		},
-		onSuccess: ({ pollId }) => {
-			// Invalidate poll results to refetch
-			queryClient.invalidateQueries({ queryKey: ['poll-results', pollId] })
+		mutate: async ({ pollId, optionIds }: VoteInput) => {
+			// Get fingerprint
+			const voterFingerprint = await getHashedFingerprint()
+
+			// Check if already voted (local storage)
+			const votedPolls = JSON.parse(
+				localStorage.getItem(LOCAL_STORAGE_KEYS.VOTED_POLLS) || '{}'
+			)
+			if (votedPolls[pollId]) {
+				throw new Error('You have already voted on this poll')
+			}
+
+			// Cast vote via Convex
+			await castVote({
+				pollId,
+				optionIds,
+				voterFingerprint,
+			})
+
+			// Mark as voted in local storage
+			votedPolls[pollId] = true
+			localStorage.setItem(LOCAL_STORAGE_KEYS.VOTED_POLLS, JSON.stringify(votedPolls))
 		},
-	})
+	}
 }
 
 /**

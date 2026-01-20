@@ -17,12 +17,12 @@ export function EmbedPage() {
 	const [searchParams] = useSearchParams()
 	const theme = searchParams.get('theme') || 'dark'
 	const { data: poll, isLoading } = usePoll(slug)
-	const { data: results } = usePollResults(poll?.id)
+	const { data: results } = usePollResults(poll?._id)
 	const vote = useVote()
 	const [selectedOptions, setSelectedOptions] = useState<string[]>([])
 	const config = getConfig()
 
-	const alreadyVoted = poll ? hasVoted(poll.id) : false
+	const alreadyVoted = poll ? hasVoted(poll._id) : false
 
 	if (isLoading) {
 		return (
@@ -46,8 +46,8 @@ export function EmbedPage() {
 
 	const sortedOptions = poll.options
 		? [...poll.options].sort((a, b) => {
-				const aVotes = results?.[a.id] || 0
-				const bVotes = results?.[b.id] || 0
+				const aVotes = results?.[a._id] || 0
+				const bVotes = results?.[b._id] || 0
 				return bVotes - aVotes
 			})
 		: []
@@ -57,7 +57,7 @@ export function EmbedPage() {
 
 		try {
 			await vote.mutateAsync({
-				pollId: poll.id,
+				pollId: poll._id,
 				optionIds: selectedOptions,
 			})
 			setSelectedOptions([])
@@ -78,7 +78,7 @@ export function EmbedPage() {
 		}
 	}
 
-	const canShowResults = poll.show_results_before_vote || alreadyVoted
+	const canShowResults = poll.showResultsBeforeVote || alreadyVoted
 
 	return (
 		<div
@@ -102,11 +102,11 @@ export function EmbedPage() {
 							>
 								{poll.options?.map((option) => (
 									<div
-										key={option.id}
+										key={option._id}
 										className="flex items-center space-x-3 rounded-lg border p-3"
 									>
-										<RadioGroupItem value={option.id} id={option.id} />
-										<Label htmlFor={option.id} className="flex-1 cursor-pointer">
+										<RadioGroupItem value={option._id} id={option._id} />
+										<Label htmlFor={option._id} className="flex-1 cursor-pointer">
 											{option.label}
 										</Label>
 									</div>
@@ -116,15 +116,15 @@ export function EmbedPage() {
 							<div className="space-y-2">
 								{poll.options?.map((option) => (
 									<div
-										key={option.id}
+										key={option._id}
 										className="flex items-center space-x-3 rounded-lg border p-3"
 									>
 										<Checkbox
-											id={option.id}
-											checked={selectedOptions.includes(option.id)}
-											onCheckedChange={() => handleOptionToggle(option.id)}
+											id={option._id}
+											checked={selectedOptions.includes(option._id)}
+											onCheckedChange={() => handleOptionToggle(option._id)}
 										/>
-										<Label htmlFor={option.id} className="flex-1 cursor-pointer">
+										<Label htmlFor={option._id} className="flex-1 cursor-pointer">
 											{option.label}
 										</Label>
 									</div>
@@ -158,13 +158,13 @@ export function EmbedPage() {
 						</div>
 						<AnimatePresence mode="popLayout">
 							{sortedOptions.map((option, index) => {
-								const votes = results?.[option.id] || 0
+								const votes = results?.[option._id] || 0
 								const percentage = totalVotes > 0 ? (votes / totalVotes) * 100 : 0
 								const isLeading = index === 0 && votes > 0
 
 								return (
 									<motion.div
-										key={option.id}
+										key={option._id}
 										layout
 										initial={{ opacity: 0 }}
 										animate={{ opacity: 1 }}

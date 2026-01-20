@@ -16,18 +16,19 @@ import { PollHeader } from '@/components/poll/poll-header'
 import { PollStatistics } from '@/components/poll/poll-statistics'
 import { ChartVisualizations } from '@/components/poll/chart-visualizations'
 import { VoteTimeline } from '@/components/poll/vote-timeline'
+import { CommentSection } from '@/components/poll/comment-section'
 import { toast } from 'sonner'
 
 export function PollPage() {
 	const { slug } = useParams()
 	const { data: poll, isLoading } = usePoll(slug)
-	const { data: results } = usePollResults(poll?.id)
+	const { data: results } = usePollResults(poll?._id)
 	const vote = useVote()
 	const [selectedOptions, setSelectedOptions] = useState<string[]>([])
 	const [showShareModal, setShowShareModal] = useState(false)
 	const [isPulsing, setIsPulsing] = useState(false)
 
-	const alreadyVoted = poll ? hasVoted(poll.id) : false
+	const alreadyVoted = poll ? hasVoted(poll._id) : false
 
 	// Calculate total votes - must be before useMemo
 	const totalVotes = results
@@ -39,10 +40,10 @@ export function PollPage() {
 		if (!poll?.options || !results || totalVotes === 0) return null
 
 		let leading = poll.options[0]
-		let maxVotes = results[leading.id] || 0
+		let maxVotes = results[leading._id] || 0
 
 		for (const option of poll.options) {
-			const votes = results[option.id] || 0
+			const votes = results[option._id] || 0
 			if (votes > maxVotes) {
 				maxVotes = votes
 				leading = option
@@ -83,7 +84,7 @@ export function PollPage() {
 			const confetti = (await import('canvas-confetti')).default
 
 			await vote.mutateAsync({
-				pollId: poll.id,
+				pollId: poll._id,
 				optionIds: selectedOptions,
 			})
 
@@ -117,7 +118,7 @@ export function PollPage() {
 		}
 	}
 
-	const canShowResults = poll.show_results_before_vote || alreadyVoted
+	const canShowResults = poll.showResultsBeforeVote || alreadyVoted
 	const isClosed = poll.status === 'closed'
 
 	return (
@@ -127,10 +128,12 @@ export function PollPage() {
 				title={poll.title}
 				description={poll.description}
 				creator={poll.creator}
-createdAt={poll.created_at ?? new Date().toISOString()}
-		status={poll.status}
+				createdAt={poll._creationTime}
+				status={poll.status}
 				visibility={poll.visibility}
 				pollType={poll.type}
+				pollId={poll._id}
+				allowComments={poll.allowComments}
 				onShare={() => setShowShareModal(true)}
 			/>
 
@@ -148,12 +151,12 @@ createdAt={poll.created_at ?? new Date().toISOString()}
 								>
 									{poll.options?.map((option) => (
 										<div
-											key={option.id}
+											key={option._id}
 											className='glass flex items-center space-x-3 rounded-lg p-3 transition-colors hover:bg-accent/20'
 										>
-											<RadioGroupItem value={option.id} id={option.id} />
+											<RadioGroupItem value={option._id} id={option._id} />
 											<Label
-												htmlFor={option.id}
+												htmlFor={option._id}
 												className='flex-1 cursor-pointer text-sm'
 											>
 												{option.label}
@@ -165,16 +168,16 @@ createdAt={poll.created_at ?? new Date().toISOString()}
 								<div className='space-y-1.5'>
 									{poll.options?.map((option) => (
 										<div
-											key={option.id}
+											key={option._id}
 											className='glass flex items-center space-x-3 rounded-lg p-3 transition-colors hover:bg-accent/20'
 										>
 											<Checkbox
-												id={option.id}
-												checked={selectedOptions.includes(option.id)}
-												onCheckedChange={() => handleOptionToggle(option.id)}
+												id={option._id}
+												checked={selectedOptions.includes(option._id)}
+												onCheckedChange={() => handleOptionToggle(option._id)}
 											/>
 											<Label
-												htmlFor={option.id}
+												htmlFor={option._id}
 												className='flex-1 cursor-pointer text-sm'
 											>
 												{option.label}
@@ -219,11 +222,11 @@ createdAt={poll.created_at ?? new Date().toISOString()}
 							<PollStatistics
 								totalVotes={totalVotes}
 								leadingOption={leadingOption}
-								closesAt={poll.closes_at}
+								closesAt={poll.closesAt}
 								status={poll.status}
 								pollType={poll.type}
-createdAt={poll.created_at ?? new Date().toISOString()}
-							isPulsing={isPulsing}
+								createdAt={poll._creationTime}
+								isPulsing={isPulsing}
 							/>
 						</div>
 
@@ -232,7 +235,7 @@ createdAt={poll.created_at ?? new Date().toISOString()}
 							<VoteTimeline
 								results={results || {}}
 								options={poll.options || []}
-								pollId={poll.id}
+								pollId={poll._id}
 							/>
 						</div>
 					</div>
@@ -245,6 +248,13 @@ createdAt={poll.created_at ?? new Date().toISOString()}
 					/>
 				</div>
 			)}
+
+			{/* Comment Section */}
+			<CommentSection
+				pollId={poll._id}
+				pollCreatorId={poll.creatorId}
+				allowComments={poll.allowComments ?? true}
+			/>
 
 			{/* Share Modal */}
 			{poll && (

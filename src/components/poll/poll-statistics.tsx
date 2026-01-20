@@ -8,10 +8,10 @@ import { formatDistanceToNow } from 'date-fns'
 interface PollStatisticsProps {
 	totalVotes: number
 	leadingOption: { label: string; votes: number; percentage: number } | null
-	closesAt: string | null
+	closesAt: number | undefined
 	status: 'active' | 'closed'
 	pollType: 'single' | 'multiple'
-	createdAt: string
+	createdAt: number
 	isPulsing?: boolean
 }
 
@@ -29,12 +29,12 @@ export function PollStatistics({
 			return { text: 'Closed', type: 'closed' as const }
 		}
 		if (closesAt) {
-			const distance = formatDistanceToNow(new Date(closesAt), {
+			const distance = formatDistanceToNow(closesAt, {
 				addSuffix: true,
 			})
 			return { text: `Closes ${distance}`, type: 'closing' as const }
 		}
-		const age = formatDistanceToNow(new Date(createdAt), { addSuffix: true })
+		const age = formatDistanceToNow(createdAt, { addSuffix: true })
 		return { text: `Created ${age}`, type: 'active' as const }
 	}, [status, closesAt, createdAt])
 

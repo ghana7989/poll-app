@@ -406,7 +406,7 @@ export function HomePage() {
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
 						{recentPolls.map((poll, index) => (
 							<Link
-								key={poll.id}
+								key={poll._id}
 								to={`/poll/${poll.slug}`}
 								className="group"
 							>
@@ -438,7 +438,7 @@ export function HomePage() {
 										<div className="pt-3 border-t border-border/50 mt-4">
 											<p className="text-xs text-muted-foreground flex items-center gap-1">
 												<Clock className="h-3 w-3" />
-												{poll.created_at ? formatDistanceToNow(new Date(poll.created_at), { addSuffix: true }) : 'Unknown'}
+												{formatDistanceToNow(poll._creationTime, { addSuffix: true })}
 											</p>
 										</div>
 										

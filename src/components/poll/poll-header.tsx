@@ -1,23 +1,26 @@
 import { motion } from 'framer-motion'
-import { Share2, Calendar } from 'lucide-react'
+import { Share2, Calendar, MessageSquare } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatDistanceToNow } from 'date-fns'
+import { useComments } from '@/hooks/use-comments'
 
 interface PollHeaderProps {
 	title: string
 	description?: string | null
 	creator?: {
-		id: string
-		full_name: string | null
-		avatar_url: string | null
+		_id: string
+		name?: string | null
+		image?: string | null
 	} | null
-	createdAt: string
+	createdAt: number
 	status: 'active' | 'closed'
 	visibility: 'public' | 'unlisted' | 'private'
 	pollType: 'single' | 'multiple'
+	pollId: string
+	allowComments?: boolean | null
 	onShare: () => void
 }
 
@@ -29,8 +32,13 @@ export function PollHeader({
 	status,
 	visibility,
 	pollType,
+	pollId,
+	allowComments,
 	onShare,
 }: PollHeaderProps) {
+	const { data: comments } = useComments(pollId)
+	const commentCount = comments?.length || 0
+
 	const getInitials = (name: string | null) => {
 		if (!name) return '??'
 		return name
@@ -106,17 +114,25 @@ export function PollHeader({
 						{creator && (
 							<div className="flex items-center gap-2">
 								<Avatar className="h-6 w-6">
-									<AvatarImage src={creator.avatar_url || undefined} />
+									<AvatarImage src={creator.image || undefined} />
 									<AvatarFallback className="bg-primary/10 text-primary text-xs">
-										{getInitials(creator.full_name)}
+										{getInitials(creator.name || null)}
 									</AvatarFallback>
 								</Avatar>
-								<span>{creator.full_name || 'Anonymous'}</span>
+								<span>{creator.name || 'Anonymous'}</span>
 							</div>
 						)}
-						<div className="flex items-center gap-1.5 ml-auto">
-							<Calendar className="h-3.5 w-3.5" />
-							<span>{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</span>
+						<div className="flex items-center gap-3 ml-auto">
+							{allowComments !== false && (
+								<div className="flex items-center gap-1.5">
+									<MessageSquare className="h-3.5 w-3.5" />
+									<span>{commentCount}</span>
+								</div>
+							)}
+							<div className="flex items-center gap-1.5">
+								<Calendar className="h-3.5 w-3.5" />
+								<span>{formatDistanceToNow(createdAt, { addSuffix: true })}</span>
+							</div>
 						</div>
 					</div>
 				</div>
