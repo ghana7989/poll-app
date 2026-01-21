@@ -2,7 +2,7 @@ export default {
 	async fetch(request: Request, env: Env) {
 		console.log("=== CLOUDFLARE WORKER ENV DEBUG ===");
 		console.log("All env keys:", Object.keys(env));
-		console.log("CONVEX_URL:", (env as any).CONVEX_URL);
+		console.log("CONVEX_URL:", env.CONVEX_URL);
 		console.log("Full env object:", JSON.stringify(env, null, 2));
 		console.log("====================================");
 
@@ -11,10 +11,9 @@ export default {
 		// API routes
 		if (url.pathname === '/api/config') {
 			return Response.json({
-				supabaseUrl: env.SUPABASE_URL,
-				supabasePublishableDefaultKey: env.SUPABASE_PUBLISHABLE_DEFAULT_KEY,
 				appUrl: env.APP_URL,
 				appName: env.APP_NAME,
+				convexUrl: env.CONVEX_URL,
 			})
 		}
 

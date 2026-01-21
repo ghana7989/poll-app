@@ -10,6 +10,7 @@ declare namespace Cloudflare {
 		SUPABASE_PUBLISHABLE_DEFAULT_KEY: string;
 		APP_URL: string;
 		APP_NAME: string;
+		CONVEX_URL: string;
 		ASSETS: Fetcher;
 	}
 }
