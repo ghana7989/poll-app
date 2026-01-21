@@ -2,7 +2,7 @@ export default {
 	async fetch(request: Request, env: Env) {
 		console.log("=== CLOUDFLARE WORKER ENV DEBUG ===");
 		console.log("All env keys:", Object.keys(env));
-		console.log("VITE_CONVEX_URL:", (env as any).VITE_CONVEX_URL);
+		console.log("CONVEX_URL:", (env as any).CONVEX_URL);
 		console.log("Full env object:", JSON.stringify(env, null, 2));
 		console.log("====================================");
 
