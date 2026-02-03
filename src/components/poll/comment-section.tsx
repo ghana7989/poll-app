@@ -54,7 +54,6 @@ export function CommentSection({
 		try {
 			await addComment.mutateAsync({ pollId: pollId as Id<'polls'>, content: content.trim() })
 			setContent('')
-			toast.success('Comment added!')
 		} catch (error: any) {
 			toast.error(error.message || 'Failed to add comment')
 		}

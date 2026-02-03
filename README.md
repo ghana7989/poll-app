@@ -164,12 +164,31 @@ Instead of bundling environment variables at build time, this app uses a Cloudfl
 
 ## Scripts
 
+### Development
 - `npm run dev` - Start Vite dev server
 - `npm run dev:wrangler` - Start Wrangler dev server (matches production)
 - `npm run build` - Build for production
 - `npm run preview` - Preview production build locally
 - `npm run deploy` - Deploy to Cloudflare Pages
 - `npm run lint` - Run ESLint
+
+### Testing & Data Generation
+- `npm run generate-activity <poll-slug>` - Generate votes and comments for testing
+- `npm run simulate-votes <poll-slug> [count]` - Generate votes only
+
+See [scripts/README.md](./scripts/README.md) for detailed usage examples.
+
+#### Quick Examples
+
+Generate realistic test data for a poll:
+```bash
+npm run generate-activity abc123xyz --votes 50 --comments 20
+```
+
+Simulate votes for load testing:
+```bash
+npm run simulate-votes abc123xyz 100
+```
 
 ## License
 
